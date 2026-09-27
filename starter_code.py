@@ -5,6 +5,7 @@ Complete the recursive functions below to analyze the compromised file system.
 
 import os
 
+
 # ============================================================================
 # PART 1: RECURSION WARM-UPS
 # ============================================================================
@@ -12,100 +13,51 @@ import os
 def sum_list(numbers):
     """
     Recursively calculate the sum of a list of numbers.
-    
-    This is your first recursion problem. Think about:
-    - Base case: What's the sum of an empty list?
-    - Recursive case: If you know the sum of the rest of the list,
-      how do you include the first number?
-    
-    Args:
-        numbers (list): List of numbers to sum
-    
-    Returns:
-        int: Sum of all numbers in the list
-    
-    Example:
-        sum_list([1, 2, 3, 4]) should return 10
-        sum_list([]) should return 0
     """
-    # TODO: Implement this function
-    # Hint: if len(numbers) == 0, return 0
-    # Otherwise, return numbers[0] + sum_list(numbers[1:])
-    
-    pass
 
-# Uncomment to test sum_list
-# print("\nTest sum_list:")
-# print(f"  sum_list([1, 2, 3, 4]) = {sum_list([1, 2, 3, 4])} (expected: 10)")
-# print(f"  sum_list([]) = {sum_list([])} (expected: 0)")
-# print(f"  sum_list([5, 5, 5]) = {sum_list([5, 5, 5])} (expected: 15)")
+    # Base case: an empty list has a sum of 0
+    if len(numbers) == 0:
+        return 0
+
+    # Recursive case
+    return numbers[0] + sum_list(numbers[1:])
 
 
 def count_even(numbers):
     """
     Recursively count how many even numbers are in a list.
-    
-    This teaches you how to count items that match a condition.
-    You'll use this same pattern for counting files!
-    
-    Args:
-        numbers (list): List of numbers
-    
-    Returns:
-        int: Count of even numbers in the list
-    
-    Example:
-        count_even([1, 2, 3, 4, 5, 6]) should return 3
-        count_even([1, 3, 5]) should return 0
     """
-    # TODO: Implement this function
-    # Hint: Base case is empty list (return 0)
-    # If first number is even, add 1 to count from rest of list
-    # If first number is odd, just return count from rest of list
-    
-    pass
 
-# Uncomment to test count_even
-# print("\nTest count_even:")
-# print(f"  count_even([1, 2, 3, 4, 5, 6]) = {count_even([1, 2, 3, 4, 5, 6])} (expected: 3)")
-# print(f"  count_even([1, 3, 5]) = {count_even([1, 3, 5])} (expected: 0)")
-# print(f"  count_even([2, 4, 6]) = {count_even([2, 4, 6])} (expected: 3)")
+    # Base case: an empty list contains no even numbers
+    if len(numbers) == 0:
+        return 0
+
+    # If the first number is even, count it
+    if numbers[0] % 2 == 0:
+        return 1 + count_even(numbers[1:])
+
+    # Otherwise move to the rest of the list
+    return count_even(numbers[1:])
+
 
 def find_strings_with(strings, target):
     """
     Recursively find all strings that contain a target substring.
-    
-    This teaches you how to build a list of items that match a condition.
-    You'll use this same pattern for finding infected files!
-    
-    Args:
-        strings (list): List of strings to search
-        target (str): Substring to search for
-    
-    Returns:
-        list: All strings that contain the target substring
-    
-    Example:
-        find_strings_with(["hello", "world", "help"], "hel") 
-        should return ["hello", "help"]
     """
-    # TODO: Implement this function
-    # Hint: Base case is empty list (return [])
-    # If first string contains target, add it to results from rest of list
-    # Otherwise, just return results from rest of list
-    # Use: if target in strings[0]
-    
-    pass
 
-# Uncomment to test find_strings_with
-# print("\nTest find_strings_with:")
-# result = find_strings_with(["hello", "world", "help", "test"], "hel")
-# print(f"  find_strings_with(['hello', 'world', 'help', 'test'], 'hel') = {result}")
-# print(f"  (expected: ['hello', 'help'])")
-    
-# result = find_strings_with(["cat", "dog", "bird"], "z")
-# print(f"  find_strings_with(['cat', 'dog', 'bird'], 'z') = {result}")
-# print(f"  (expected: [])")
+    # Base case: empty list
+    if len(strings) == 0:
+        return []
+
+    # Search the remaining strings
+    matches = find_strings_with(strings[1:], target)
+
+    # If the first string contains the target, add it
+    if target in strings[0]:
+        return [strings[0]] + matches
+
+    return matches
+
 
 # ============================================================================
 # PART 2: COUNT ALL FILES
@@ -114,31 +66,28 @@ def find_strings_with(strings, target):
 def count_files(directory_path):
     """
     Recursively count all files in a directory and its subdirectories.
-    
+
     Args:
         directory_path (str): Path to the directory to analyze
-    
+
     Returns:
         int: Total number of files in the directory tree
-    
-    Example:
-        If directory structure is:
-        root/
-            file1.txt
-            file2.txt
-            subdir/
-                file3.txt
-        
-        count_files('root') should return 3
     """
-    # TODO: Implement this function
-    # Hints:
-    # 1. What is the base case? (What if directory_path is a file, not a directory?)
-    # 2. How do you list items in a directory? (Check Resource 3)
-    # 3. For each item, is it a file or directory? Recursively handle directories.
-    # 4. How do you combine the results?
-    
-    pass
+
+    # Base case: if the path is a file, count it
+    if os.path.isfile(directory_path):
+        return 1
+
+    total_files = 0
+
+    # Look through everything inside the directory
+    for item in os.listdir(directory_path):
+        item_path = os.path.join(directory_path, item)
+
+        # Recursively count files
+        total_files += count_files(item_path)
+
+    return total_files
 
 
 # ============================================================================
@@ -147,64 +96,303 @@ def count_files(directory_path):
 
 def find_infected_files(directory_path, extension=".encrypted"):
     """
-    Recursively find all files with a specific extension in a directory tree.
-    
+    Recursively find all files with a specific extension.
+
     Args:
         directory_path (str): Path to the directory to analyze
-        extension (str): File extension to search for (default: ".encrypted")
-    
+        extension (str): File extension to search for
+
     Returns:
-        list: List of full paths to all files with the specified extension
-    
-    Example:
-        If directory structure is:
-        root/
-            normal.txt
-            virus.encrypted
-            subdir/
-                data.encrypted
-        
-        find_infected_files('root', '.encrypted') should return:
-        ['root/virus.encrypted', 'root/subdir/data.encrypted']
+        list: List of paths to infected files
     """
-    # TODO: Implement this function
-    # Hints:
-    # 1. Base case: If it's a file, check if it has the extension
-    # 2. Recursive case: If it's a directory, check all items inside
-    # 3. You'll need to build and return a list of matching file paths
-    # 4. Use os.path.join() to create full paths
-    
-    pass
+
+    # Base case: if this is a file, check the extension
+    if os.path.isfile(directory_path):
+
+        if directory_path.endswith(extension):
+            return [directory_path]
+
+        return []
+
+    infected_files = []
+
+    # Search everything inside the directory
+    for item in os.listdir(directory_path):
+        item_path = os.path.join(directory_path, item)
+
+        infected_files.extend(
+            find_infected_files(item_path, extension)
+        )
+
+    return infected_files
 
 
 # ============================================================================
-# TESTING & BENCHMARKING
+# TESTING
 # ============================================================================
-
 
 if __name__ == "__main__":
-    print("RECURSION ASSIGNMENT - STARTER CODE")
-    print("Complete the functions above, then run this file to test your work.\n")
-    
-    ## 1. Uncomment to run tests for count_files functions
-    # print("Total files (Test Case 1):", count_files("test_cases/case1_flat")) # 5
-    # print("Total files (Test Case 2):", count_files("test_cases/case2_nested")) # 4
-    # print("Total files (Test Case 3):", count_files("test_cases/case3_infected")) # 5
 
-    ## 2. Uncomment to run count_files for breached files
-    # print("Total files (breeched files):", count_files("breach_data")) # ???
-
-    ## 3. Uncomment to run tests for find_infected_files function
-    # print("Total Infected Files (Test Case 1):", len(find_infected_files("test_cases/case1_flat"))) # 0
-    # print("Total Infected Files (Test Case 1):", len(find_infected_files("test_cases/case2_nested"))) # 0
-    # print("Total Infected Files (Test Case 3):", len(find_infected_files("test_cases/case3_infected"))) # 3
-
-    ## 4. Uncomment to run find_infected breached files
-    # print("Total Infected Files (breached files):", len(find_infected_files("breach_data"))) # ???
-
-    ## 5. Determine how many files were corrupted by department (Finance, HR, and Sales)
-    
+    print("RECURSION ASSIGNMENT")
+    print("=" * 50)
 
 
-    
-    print("\n⚠ Uncomment the test functions in the main block to run tests!")
+    # ------------------------------------------------------------------------
+    # PART 1 TESTS
+    # ------------------------------------------------------------------------
+
+    print("\nPART 1: RECURSION WARM-UP TESTS")
+
+    print(
+        "sum_list([1, 2, 3, 4]) =",
+        sum_list([1, 2, 3, 4]),
+        "(expected: 10)"
+    )
+
+    print(
+        "sum_list([]) =",
+        sum_list([]),
+        "(expected: 0)"
+    )
+
+    print(
+        "sum_list([5, 5, 5]) =",
+        sum_list([5, 5, 5]),
+        "(expected: 15)"
+    )
+
+    print()
+
+    print(
+        "count_even([1, 2, 3, 4, 5, 6]) =",
+        count_even([1, 2, 3, 4, 5, 6]),
+        "(expected: 3)"
+    )
+
+    print(
+        "count_even([1, 3, 5]) =",
+        count_even([1, 3, 5]),
+        "(expected: 0)"
+    )
+
+    print(
+        "count_even([2, 4, 6]) =",
+        count_even([2, 4, 6]),
+        "(expected: 3)"
+    )
+
+    print()
+
+    result1 = find_strings_with(
+        ["hello", "world", "help", "test"],
+        "hel"
+    )
+
+    print(
+        "find_strings_with test 1 =",
+        result1,
+        "(expected: ['hello', 'help'])"
+    )
+
+    result2 = find_strings_with(
+        ["cat", "dog", "bird"],
+        "z"
+    )
+
+    print(
+        "find_strings_with test 2 =",
+        result2,
+        "(expected: [])"
+    )
+
+
+    # ------------------------------------------------------------------------
+    # PART 2: COUNT FILES TESTS
+    # ------------------------------------------------------------------------
+
+    print("\n" + "=" * 50)
+    print("PART 2: COUNT FILES TESTS")
+
+    print(
+        "Total files (Test Case 1):",
+        count_files("test_cases/case1_flat"),
+        "(expected: 5)"
+    )
+
+    print(
+        "Total files (Test Case 2):",
+        count_files("test_cases/case2_nested"),
+        "(expected: 4)"
+    )
+
+    print(
+        "Total files (Test Case 3):",
+        count_files("test_cases/case3_infected"),
+        "(expected: 5)"
+    )
+
+
+    # ------------------------------------------------------------------------
+    # COUNT FILES IN BREACH DATA
+    # ------------------------------------------------------------------------
+
+    print("\n" + "=" * 50)
+    print("BREACH FILE COUNT")
+
+    total_files = count_files("breach_data")
+
+    print(
+        "Total files in breach_data:",
+        total_files
+    )
+
+
+    # ------------------------------------------------------------------------
+    # PART 3: INFECTED FILE TESTS
+    # ------------------------------------------------------------------------
+
+    print("\n" + "=" * 50)
+    print("PART 3: INFECTED FILE TESTS")
+
+    print(
+        "Total Infected Files (Test Case 1):",
+        len(
+            find_infected_files(
+                "test_cases/case1_flat"
+            )
+        ),
+        "(expected: 0)"
+    )
+
+    print(
+        "Total Infected Files (Test Case 2):",
+        len(
+            find_infected_files(
+                "test_cases/case2_nested"
+            )
+        ),
+        "(expected: 0)"
+    )
+
+    print(
+        "Total Infected Files (Test Case 3):",
+        len(
+            find_infected_files(
+                "test_cases/case3_infected"
+            )
+        ),
+        "(expected: 3)"
+    )
+
+
+    # ------------------------------------------------------------------------
+    # FIND INFECTED FILES IN BREACH DATA
+    # ------------------------------------------------------------------------
+
+    print("\n" + "=" * 50)
+    print("BREACH INFECTION ANALYSIS")
+
+    infected_files = find_infected_files(
+        "breach_data"
+    )
+
+    print(
+        "Total infected files in breach_data:",
+        len(infected_files)
+    )
+
+
+    # ------------------------------------------------------------------------
+    # OPTIONAL: PRINT ALL INFECTED FILE PATHS
+    # ------------------------------------------------------------------------
+
+    # Uncomment the lines below if you want to display
+    # every infected file path in the terminal.
+
+    # print("\nINFECTED FILE LOCATIONS:")
+    # for file_path in infected_files:
+    #     print(file_path)
+
+
+    # ------------------------------------------------------------------------
+    # PART 5: DEPARTMENT ANALYSIS
+    # ------------------------------------------------------------------------
+
+    print("\n" + "=" * 50)
+    print("INFECTED FILES BY DEPARTMENT")
+
+    departments = [
+        "Finance",
+        "HR",
+        "Sales"
+    ]
+
+    department_counts = {}
+
+    for department in departments:
+
+        infected_count = 0
+
+        # Check folders directly inside breach_data
+        for folder in os.listdir("breach_data"):
+
+            folder_path = os.path.join(
+                "breach_data",
+                folder
+            )
+
+            # Handles folder names such as:
+            # Finance
+            # Finance_1
+            # HR
+            # HR_1
+            # Sales
+            # Sales_1
+            if (
+                os.path.isdir(folder_path)
+                and (
+                    folder == department
+                    or folder.startswith(
+                        department + "_"
+                    )
+                )
+            ):
+
+                department_files = find_infected_files(
+                    folder_path
+                )
+
+                infected_count += len(
+                    department_files
+                )
+
+        department_counts[department] = infected_count
+
+        print(
+            department + ":",
+            infected_count
+        )
+
+
+    # ------------------------------------------------------------------------
+    # DETERMINE WHICH DEPARTMENT WAS HIT HARDEST
+    # ------------------------------------------------------------------------
+
+    hardest_hit = max(
+        department_counts,
+        key=department_counts.get
+    )
+
+    print(
+        "\nDepartment with the most infected files:",
+        hardest_hit
+    )
+
+    print(
+        "Number of infected files:",
+        department_counts[hardest_hit]
+    )
+
+
+    print("\n" + "=" * 50)
+    print("ANALYSIS COMPLETE")
